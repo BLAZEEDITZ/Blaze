@@ -1,51 +1,6 @@
-<!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>Head</title>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="icon" type="image/x-icon" href="head.png">
-</head>
-<body>
-<script type="x-shader/x-vertex" id="vertexshader">
-  attribute float size;
-  attribute vec3 color;
-  attribute float fade;
+console.clear();
 
-  varying vec3 vColor;
-
-  void main() {
-    vColor = color;
-    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = size;
-    gl_Position = projectionMatrix * mvPosition;
-  }
-</script>
-
-<script type="x-shader/x-fragment" id="fragmentshader">
-  uniform sampler2D pointTexture;
-  varying vec3 vColor;
-  void main() {
-    gl_FragColor = vec4(vColor, 1.0);
-    gl_FragColor = gl_FragColor * texture2D(pointTexture, gl_PointCoord);
-  }
-</script>
-<script src='javascript/r128.js'></script>
-<script src='javascript/meshsurfacesampler_20210711.js'></script>
-<script src='javascript/OBJLoader_20210711.js'></script>
-<script src='javascript/TrackballControls.js'></script>
-<script src='javascript/EffectComposer.js'></script>
-<script src='javascript/RenderPass.js'></script>
-<script src='javascript/UnrealBloomPass.js'></script>
-<script src='javascript/LuminosityHighPassShader.js'></script>
-<script src='javascript/CopyShader.js'></script>
-<script src='javascript/ShaderPass.js'></script>
-<script src='javascript/gsap.min.js'></script>
-<script  src="./script.js"></script>
-<script>
-  console.clear();
-
-const pixelRatio = 2.0;
+const pixelRatio = 2;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -353,13 +308,3 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   bloomPass.setSize(window.innerWidth, window.innerHeight);
 }
-  </script>
-  <style>
-    body {
-      overflow-x: hidden;
-      overflow-y: hidden;
-  background: #000;
-}
-  </style>
-</body>
-</html>
