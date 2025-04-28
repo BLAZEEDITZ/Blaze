@@ -4,31 +4,33 @@ function toggleMenu() {
 }
 
 function toggleSendButton() {
-const messageInput = document.getElementById('messageInput');
-const sendButton = document.getElementById('sendButton');
-const sendIcon = document.getElementById('sendIcon');
-if (messageInput.value.trim() !== "") {
-sendButton.disabled = false;
-sendIcon.src = "https://img.icons8.com/?size=100&id=124436&format=png&color=ffffff";
-} else {
-sendButton.disabled = true;
-sendIcon.src = "https://img.icons8.com/?size=100&id=124436&format=png&color=000000";
-}
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const sendIcon = document.getElementById('sendIcon');
+    if (messageInput.value.trim() !== "") {
+        sendButton.disabled = false;
+        sendIcon.src = "https://img.icons8.com/?size=100&id=124436&format=png&color=ffffff";
+    } else {
+        sendButton.disabled = true;
+        sendIcon.src = "https://img.icons8.com/?size=100&id=124436&format=png&color=000000";
+    }
 }
 
 document.getElementById('messageInput').addEventListener('input', toggleSendButton);
 document.getElementById('messageInput').addEventListener('keypress', function(event) {
-if (event.key === 'Enter' && !sendButton.disabled) {
-event.preventDefault();
-sendButton.click();
-}
+    const sendButton = document.getElementById('sendButton');
+    if (event.key === 'Enter' && !sendButton.disabled) {
+        event.preventDefault();
+        sendButton.click();
+    }
 });
-
 
 function getCurrentTimestamp() {
     const now = new Date();
     return now.toLocaleString();
 }
+
+const API_KEY = "sk-5976526e3f56409ba780633cc51f46a2"; // ✨ NEW: Added your API key here
 
 async function sendMessage() {
     const messageInput = document.getElementById('messageInput');
@@ -57,32 +59,33 @@ async function sendMessage() {
     loadingElement.textContent = 'Loading...';
     messagesContainer.appendChild(loadingElement);
 
-    // Scroll to the latest message
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // Use a CORS proxy to make the API request
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
-    const apiUrl = `https://api.kastg.xyz/api/ai/chatgptV4?prompt=${encodeURIComponent(userMessage)}`;
-    const requestUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
-
     try {
-        const response = await fetch(requestUrl);
-        const data = await response.json();
-        const apiResponse = JSON.parse(data.contents);
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}` // ✨ NEW: Add Authorization header
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo", // Use "gpt-3.5-turbo" model
+                messages: [{ role: "user", content: userMessage }]
+            })
+        });
 
-        // Extract AI message
-        const aiMessage = apiResponse.result[0].response;
+        const data = await response.json();
+        const aiMessage = data.choices[0].message.content;
 
         // Remove loading animation
         messagesContainer.removeChild(loadingElement);
 
-        // Display AI response with logo
+        // Display AI response
         const aiMessageElement = document.createElement('div');
         aiMessageElement.className = 'message ai-message';
         aiMessageElement.innerHTML = `<img src="images/blaze-top.png" alt="Yankara Logo" style="width: 35px; height: 35px; vertical-align: middle;"> ${aiMessage}<span class="timestamp">${getCurrentTimestamp()}</span>`;
         messagesContainer.appendChild(aiMessageElement);
 
-        // Scroll to the latest message
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     } catch (error) {
         console.error('Error:', error);
@@ -90,13 +93,11 @@ async function sendMessage() {
         // Remove loading animation
         messagesContainer.removeChild(loadingElement);
 
-        // Display error message
         const errorMessageElement = document.createElement('div');
         errorMessageElement.className = 'message error-message';
-        errorMessageElement.innerHTML = `Error: Unable to get response from Blaze.<span class="timestamp">${getCurrentTimestamp()}</span>`;
+        errorMessageElement.innerHTML = `Error: Unable to get response from OpenAI.<span class="timestamp">${getCurrentTimestamp()}</span>`;
         messagesContainer.appendChild(errorMessageElement);
 
-        // Scroll to the latest message
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 }
